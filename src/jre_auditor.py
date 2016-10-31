@@ -1,5 +1,5 @@
 
-
+import sys
 import os
 from subprocess import call
 from jre_logger import JRELogger
@@ -15,18 +15,21 @@ class JREAuditor:
     and checks to see if they are configured to be compliant with the
     JRE STIG put out by the DIA.
 
-    Only supports configuartion of JRE 7 STIG on a nix system.
+    Only supports configuartion of JRE 7 STIG on a nix system. Does not check if
+    latest version.
     """
     def __init__(self):
         self.deployment_file = None
         self.properties_file = None
         self.deployment_path = None
         self.properties_path = None
+        self.os = sys.platform
         self.get_deployment_path()
         self.get_properties_path()
         self.logger = JRELogger()
+        
 
-    def audit_jre7(self):
+    def audit_jre(self):
         """
         Runs the configuartion tests for JRE 7
         """
@@ -47,6 +50,8 @@ class JREAuditor:
         self.logger.certificate_validation_locked_errmsg(success)
         success = self.config_keys_set()
         self.logger.config_keys_set_errmsg(success)
+        success = self.check_jre_version()
+        success = self.check_no_outdated()
         del self.logger
     
     def __del__(self):
@@ -60,22 +65,22 @@ class JREAuditor:
         """ Searches the system for config file with the default deployment 
         filename.
         """
-        holder = open(HOLDER_FILE, 'w')
-        call(["find", "/usr", "-name", DEPLOYMENT_FILENAME], stdout=holder)
-        holder.close()
-        holder = open(HOLDER_FILE, 'r')
-
+        if(self.os == "linux"):
+            holder = open(HOLDER_FILE, 'w')
+            call(["find", "/usr", "-name", DEPLOYMENT_FILENAME], stdout=holder)
+            holder.close()
+            holder = open(HOLDER_FILE, 'r')
+        else:
+            print("Windows system1")
 
         if(os.path.getsize(HOLDER_DIR) == 0):
             self.deployment_path = None
-            call(["rm", HOLDER_FILE])
             return 0
 
         for file in holder:
             if(line != ''):
                 self.deployment_path = line
                 holder.close()
-
                 return 1
             else:
                 self.deployment_path = None
@@ -85,10 +90,13 @@ class JREAuditor:
     def get_properties_path(self):
         """ Searches the system for the JRE properties file.
         """
-        holder = open(HOLDER_FILE, 'w')
-        call(["find", "/usr", "-name", PROPERTIES_FILENAME], stdout=holder)
-        holder.close()
-        holder = open(HOLDER_FILE, 'r')
+        if(self.os == "linux"):
+            holder = open(HOLDER_FILE, 'w')
+            call(["find", "/usr", "-name", PROPERTIES_FILENAME], stdout=holder)
+            holder.close()
+            holder = open(HOLDER_FILE, 'r')
+        else:
+            print("Windows system2")
 
         if(os.path.getsize(HOLDER_DIR) == 0):
             self.deployment_path = None
@@ -155,7 +163,6 @@ class JREAuditor:
 
         Finding ID: V-32829
         """
-
         if(self.properties_path == None):
             return False
 
@@ -208,7 +215,7 @@ class JREAuditor:
 
 
     def certificate_validation_enabled(self):
-        """Check SV-43649r1_rule: The option to enable online 
+        """Check SV-43618r1_rule: The option to enable online 
         certificate validation must be enabled.
         
         Finding ID: V-32832   
@@ -262,9 +269,35 @@ class JREAuditor:
                 deployment_set = True
         config.close()
         return properties_set and deployment_set
+
+    def check_jre_version(self):
+         """Check SV-51133r1_rule: The version of the JRE running on 
+         the system must be the most current available.
+
+        Finding ID: V-61037
         
+        Currently don't have a way to reliable check!!!!!!
+        """ 
+        holder = open(HOLDER_FILE, 'w')
+        call(["java", "-version"], stdout=holder)
+        holder.close()
+        holder = open(HOLDER_FILE, 'r')
+
+        for line in holder:
+            print(line)
+
+    def check_no_outdated(self):
+         """Check SV-75505r2_rule: Java Runtime Environment versions 
+         that are no longer supported by the vendor for security 
+         updates must not be installed on a system.
+        
+        Finding ID: V-61037   
+        """       
+        pass
+
+
 
 if __name__ == "__main__":
     auditor = JREAuditor()
-    auditor.audit_jre7()
+    auditor.audit_jre()
     del auditor
