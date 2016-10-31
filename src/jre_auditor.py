@@ -2,7 +2,7 @@
 
 import os
 from subprocess import call
-
+from jre_logger import JRELogger
 
 DEPLOYMENT_FILENAME = "deployment.config"
 PROPERTIES_FILENAME = "deployment.properties"
@@ -13,19 +13,18 @@ HOLDER_DIR = "./hold.txt"
 class JREAuditor:
 
     def __init__(self):
-        self.this = 3
         self.deployment_file = None
         self.properties_file = None
         self.deployment_path = None
         self.properties_path = None
         self.get_deployment_path()
         self.get_properties_path()
+        self.logger = JRELogger()
 
     def audit_jre(self):
         self.has_deployment_file()
         self.has_properties_file()
 
-        """
         self.permission_dialog_disabled()
         self.permission_dialog_locked()
         self.publisher_revocation_enabled()
@@ -33,7 +32,8 @@ class JREAuditor:
         self.certificate_validation_enabled()
         self.certificate_validation_locked()
         self.config_keys_set()
-        """
+        del self.logger
+        
 
     def get_deployment_path(self):
         holder = open(HOLDER_FILE, 'w')
@@ -98,7 +98,6 @@ class JREAuditor:
         """Check SV-43620r1_rule: A properties file must be present to 
         hold all the keys that establish properties within the Java 
         control panel.
-
 
         Finding ID: V-32902      
         """
@@ -198,7 +197,6 @@ class JREAuditor:
             return False
 
         config = open(self.properties_path, 'r')
-
         disabled = False
         for line in config_file:
             if 'deployment.security.validation.ocsp=false' in line:
@@ -217,7 +215,6 @@ class JREAuditor:
             return False
 
         config = open(self.properties_path, 'r')
-
         locked = False
         for line in config_file:
             if line == 'deployment.security.validation.ocsp.locked':
@@ -233,9 +230,8 @@ class JREAuditor:
         """
         if(self.properties_path == None):
             return False
-        
-        config = open(self.properties_path, 'r')
 
+        config = open(self.properties_path, 'r')
         properties_set = False
         deployment_set = False
         for line in config_file:
