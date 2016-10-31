@@ -66,8 +66,6 @@ class JREAuditor:
                 holder.close()
                 return 0
 
-
-
     def has_deployment_file(self):
         """Check SV-43621r1_rule: A configuration file must be 
         present to deploy properties for JRE.
@@ -103,7 +101,7 @@ class JREAuditor:
         """
         config = open(self.properties_path, 'r')
 
-        locked = False
+        disabled = False
         for line in config_file:
             if line == 'deployment.security.askgrantdialog.notinca':
                 locked = True
@@ -124,10 +122,57 @@ class JREAuditor:
         for line in config_file:
             if line == 'deployment.security.askgrantdialog.notinca=false':
                 locked = True
+        config.close()
         return locked
 
-    
 
+
+    def publisher_revocation_enabled(self):
+        """Check SV-43604r1_rule: The dialog to enable users to 
+        check publisher certificates for revocation must be enabled.
+
+        Finding ID: V-32830     
+        """
+        pass
+    def publisher_revocation_locked(self):
+        """Check SV-43617r1_rule: The option to enable users to check 
+        publisher certificates for revocation must be locked.
+        
+        Finding ID: V-32831     
+        """        
+        pass
+
+
+    def certificate_validation_enabled(self):
+        """Check SV-43649r1_rule: The option to enable online 
+        certificate validation must be enabled.
+        
+        Finding ID: V-32832   
+        """
+        pass
+
+    def certificate_validation_locked(self):
+        """Check SV-43619r1_rule: The option to enable online 
+        certificate validation must be locked.
+
+        Finding ID: V-32833      
+        """
+        config = open(self.properties_path, 'r')
+
+        locked = False
+        for line in config_file:
+            if line == 'deployment.security.validation.ocsp.locked':
+                locked = True
+        config.close()
+
+
+    def config_keys_set(self):
+        """Check SV-43649r1_rule: The configuration file must contain
+        proper keys and values to deploy settings correctly.
+        
+        Finding ID: V-32842    
+        """
+        pass
 
 if __name__ == "__main__":
     auditor = JREAuditor()
