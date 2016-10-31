@@ -11,7 +11,12 @@ HOLDER_DIR = "./hold.txt"
 
 
 class JREAuditor:
+    """ Finds the configuration files for the java runtime environment 
+    and checks to see if they are configured to be compliant with the
+    JRE STIG put out by the DIA.
 
+    Only supports configuartion of JRE7 STIG on a nix system.
+    """
     def __init__(self):
         self.deployment_file = None
         self.properties_file = None
@@ -21,7 +26,10 @@ class JREAuditor:
         self.get_properties_path()
         self.logger = JRELogger()
 
-    def audit_jre(self):
+    def audit_jre7(self):
+        """
+        
+        """
         self.has_deployment_file()
         self.has_properties_file()
 
@@ -42,6 +50,10 @@ class JREAuditor:
         
 
     def get_deployment_path(self):
+        """
+        Searches the system for config file with the default deployment 
+        filename.
+        """
         holder = open(HOLDER_FILE, 'w')
         call(["find", "/usr", "-name", DEPLOYMENT_FILENAME], stdout=holder)
         holder.close()
@@ -67,6 +79,9 @@ class JREAuditor:
                 return 0
 
     def get_properties_path(self):
+        """
+        Searches the system for the JRE properties file.
+        """
         holder = open(HOLDER_FILE, 'w')
         call(["find", "/usr", "-name", PROPERTIES_FILENAME], stdout=holder)
         holder.close()
@@ -251,4 +266,4 @@ class JREAuditor:
 
 if __name__ == "__main__":
     auditor = JREAuditor()
-    auditor.audit_jre()
+    auditor.audit_jre7()

@@ -1,7 +1,9 @@
 
 
 class JRELogger:
-    """Clean this up!"""
+    """JRELogger writes error messages to the JRE log file
+    for every rule in the JRE STIG that is violated.
+    """
 
     def __init__(self, filename="JRELog.txt"):
         self.filename = filename
