@@ -25,13 +25,19 @@ class JREAuditor:
         self.has_deployment_file()
         self.has_properties_file()
 
-        self.permission_dialog_disabled()
-        self.permission_dialog_locked()
-        self.publisher_revocation_enabled()
-        self.publisher_revocation_locked()
-        self.certificate_validation_enabled()
-        self.certificate_validation_locked()
-        self.config_keys_set()
+        success = self.permission_dialog_disabled()
+        self.logger.has_deployment_file_errmsg(success)
+        success = self.permission_dialog_locked()
+        self.logger.permission_dialog_locked_errmsg(success)
+        success = self.publisher_revocation_enabled()
+        self.logger.publisher_revocation_enabled_errmsg(success)
+        success = self.publisher_revocation_locked()
+        self.logger.publisher_revocation_locked_errmsg(success)
+        success = self.certificate_validation_enabled()
+        self.logger.certificate_validation_enabled_errmsg(success)
+        success = self.certificate_validation_locked()
+        self.logger.certificate_validation_locked_errmsg(success)
+        success = self.config_keys_set()
         del self.logger
         
 
