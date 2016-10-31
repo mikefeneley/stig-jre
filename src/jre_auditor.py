@@ -115,6 +115,9 @@ class JREAuditor:
 
         Finding ID: V-32828     
         """
+        if(self.properties_path == None):
+            return False
+
         config = open(self.properties_path, 'r')
 
         locked = False
@@ -132,6 +135,10 @@ class JREAuditor:
 
         Finding ID: V-32829
         """
+
+        if(self.properties_path == None):
+            return False
+
         config = open(self.properties_path, 'r')
 
         disabled = False
@@ -147,6 +154,10 @@ class JREAuditor:
 
         Finding ID: V-32830     
         """
+
+        if(self.properties_path == None):
+            return False
+
         config = open(self.properties_path, 'r')
 
         disabled = False
@@ -162,6 +173,9 @@ class JREAuditor:
         
         Finding ID: V-32831     
         """
+        if(self.properties_path == None):
+            return False
+
         config = open(self.properties_path, 'r')
 
         disabled = False
@@ -179,6 +193,10 @@ class JREAuditor:
         
         Finding ID: V-32832   
         """
+
+        if(self.properties_path == None):
+            return False
+
         config = open(self.properties_path, 'r')
 
         disabled = False
@@ -195,6 +213,9 @@ class JREAuditor:
 
         Finding ID: V-32833      
         """
+        if(self.properties_path == None):
+            return False
+
         config = open(self.properties_path, 'r')
 
         locked = False
@@ -210,6 +231,9 @@ class JREAuditor:
         
         Finding ID: V-32842    
         """
+        if(self.properties_path == None):
+            return False
+        
         config = open(self.properties_path, 'r')
 
         properties_set = False
