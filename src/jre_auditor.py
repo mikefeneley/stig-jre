@@ -15,7 +15,7 @@ class JREAuditor:
     and checks to see if they are configured to be compliant with the
     JRE STIG put out by the DIA.
 
-    Only supports configuartion of JRE7 STIG on a nix system.
+    Only supports configuartion of JRE 7 STIG on a nix system.
     """
     def __init__(self):
         self.deployment_file = None
@@ -28,7 +28,7 @@ class JREAuditor:
 
     def audit_jre7(self):
         """
-        
+        Runs the configuartion tests for JRE 7
         """
         self.has_deployment_file()
         self.has_properties_file()
@@ -46,12 +46,18 @@ class JREAuditor:
         success = self.certificate_validation_locked()
         self.logger.certificate_validation_locked_errmsg(success)
         success = self.config_keys_set()
+        self.logger.config_keys_set_errmsg(success)
         del self.logger
-        
+    
+    def __del__(self):
+        call(["rm", HOLDER_FILE])
+        if self.deployment_file != None:
+            self.deployment_file.close()
+        if self.properties_file != None: 
+            self.properties_file.close()
 
     def get_deployment_path(self):
-        """
-        Searches the system for config file with the default deployment 
+        """ Searches the system for config file with the default deployment 
         filename.
         """
         holder = open(HOLDER_FILE, 'w')
@@ -69,18 +75,15 @@ class JREAuditor:
             if(line != ''):
                 self.deployment_path = line
                 holder.close()
-                call(["rm", HOLDER_FILE])
 
                 return 1
             else:
                 self.deployment_path = None
                 holder.close()
-                call(["rm", HOLDER_FILE])
                 return 0
 
     def get_properties_path(self):
-        """
-        Searches the system for the JRE properties file.
+        """ Searches the system for the JRE properties file.
         """
         holder = open(HOLDER_FILE, 'w')
         call(["find", "/usr", "-name", PROPERTIES_FILENAME], stdout=holder)
@@ -89,19 +92,16 @@ class JREAuditor:
 
         if(os.path.getsize(HOLDER_DIR) == 0):
             self.deployment_path = None
-            call(["rm", HOLDER_FILE])
             return 0
 
         for file in holder:
             if(line != ''):
                 self.deployment_path = line
                 holder.close()
-                call(["rm", HOLDER_FILE])
                 return 1
             else:
                 self.deployment_path = None
                 holder.close()
-                call(["rm", HOLDER_FILE])
                 return 0
 
     def has_deployment_file(self):
@@ -267,3 +267,4 @@ class JREAuditor:
 if __name__ == "__main__":
     auditor = JREAuditor()
     auditor.audit_jre7()
+    del auditor

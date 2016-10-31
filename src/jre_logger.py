@@ -8,13 +8,12 @@ class JRELogger:
     def __init__(self, filename="JRELog.txt"):
         self.filename = filename
         self.log = open(filename, 'w')
-        self.log.write("#################\n\n")
+        self.log.write("#########################\n\n")
         self.log.write("JRE Audit Findings\n\n")
     
     def __del__(self):
-        self.log.write("#################\n\n")
+        self.log.write("#########################\n\n")
         self.log.close()
-
 
     def has_deployment_file_errmsg(self, success):
         if not success:
@@ -74,5 +73,7 @@ class JRELogger:
 
     def config_keys_set_errmsg(self, success):
         if not success:
-            log.write("Check SV-43621r1_rule\n")
-        
+            self.log.write("Check SV-43649r1_rule:")
+            self.log.write("The configuration file must contain proper keys and values to deploy settings correctly.\n\n")
+            self.log.write("To fix: ")
+            self.log.write("Include the following keys in the configuration file: 'deployment.system.config=file:/usr/Java/jre/lib/deployment.properties' and 'deployment.system.config.mandatory=false'.\n\n\n")
