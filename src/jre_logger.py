@@ -77,3 +77,17 @@ class JRELogger:
             self.log.write("The configuration file must contain proper keys and values to deploy settings correctly.\n\n")
             self.log.write("To fix: ")
             self.log.write("Include the following keys in the configuration file: 'deployment.system.config=file:/usr/Java/jre/lib/deployment.properties' and 'deployment.system.config.mandatory=false'.\n\n\n")
+
+    def check_jre_version_errmsg(self, success):
+        if not success:
+            self.log.write("Check SSV-51133r1_rule: ")
+            self.log.write("The version of the JRE running on the system must be the most current available.\n\n")
+            self.log.write("To fix: ")
+            self.log.write("Install latest version of Java JRE.\n\n\n")
+
+    def check_no_outdated_errmsg(self, success):
+        if not success:
+            self.log.write("Check SV-75505r2_rule: ")
+            self.log.write("Java Runtime Environment (JRE) versions that are no longer supported by the vendor for security updates must not be installed on a system.\n\n")
+            self.log.write("To fix: ")
+            self.log.write("Upgrade Java Runtime Environment for Unix software to a supported version.\n\n\n")

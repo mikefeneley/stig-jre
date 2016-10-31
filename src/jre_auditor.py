@@ -51,7 +51,9 @@ class JREAuditor:
         success = self.config_keys_set()
         self.logger.config_keys_set_errmsg(success)
         success = self.check_jre_version()
+        self.logger.check_jre_version_errmsg(success)
         success = self.check_no_outdated()
+        self.logger.check_no_outdated_errmsg(success)
         del self.logger
     
     def __del__(self):
@@ -135,7 +137,6 @@ class JREAuditor:
         else:
             return True
 
-
     def permission_dialog_disabled(self):
         """Check SV-43596r1_rule: The dialog to enable users to grant 
         permissions to execute signed content from an un-trusted 
@@ -154,7 +155,6 @@ class JREAuditor:
                 locked = True
         config.close()
         return locked
-
 
     def permission_dialog_locked(self):
         """Check SV-43601r1_rule: The dialog to enable users to grant 
@@ -212,8 +212,6 @@ class JREAuditor:
         config.close()
         return locked
         
-
-
     def certificate_validation_enabled(self):
         """Check SV-43618r1_rule: The option to enable online 
         certificate validation must be enabled.
@@ -232,7 +230,6 @@ class JREAuditor:
         config.close()
         return locked
         
-
     def certificate_validation_locked(self):
         """Check SV-43619r1_rule: The option to enable online 
         certificate validation must be locked.
@@ -271,8 +268,8 @@ class JREAuditor:
         return properties_set and deployment_set
 
     def check_jre_version(self):
-         """Check SV-51133r1_rule: The version of the JRE running on 
-         the system must be the most current available.
+        """Check SV-51133r1_rule: The version of the JRE running on 
+        the system must be the most current available.
 
         Finding ID: V-61037
         
@@ -281,15 +278,11 @@ class JREAuditor:
         holder = open(HOLDER_FILE, 'w')
         call(["java", "-version"], stdout=holder)
         holder.close()
-        holder = open(HOLDER_FILE, 'r')
-
-        for line in holder:
-            print(line)
 
     def check_no_outdated(self):
-         """Check SV-75505r2_rule: Java Runtime Environment versions 
-         that are no longer supported by the vendor for security 
-         updates must not be installed on a system.
+        """Check SV-75505r2_rule: Java Runtime Environment versions 
+        that are no longer supported by the vendor for security 
+        updates must not be installed on a system.
         
         Finding ID: V-61037   
         """       
