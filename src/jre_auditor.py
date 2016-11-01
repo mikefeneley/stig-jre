@@ -6,8 +6,8 @@ from jre_logger import JRELogger
 
 DEPLOYMENT_FILENAME = "deployment.config"
 PROPERTIES_FILENAME = "deployment.properties"
-HOLDER_FILE = "hold.txt"
-HOLDER_DIR = "./hold.txt"
+JRE_HOLDER_FILE = "jre_hold.txt"
+JRE_HOLDER_DIR = "./jre_hold.txt"
 
 
 class JREAuditor:
@@ -26,56 +26,64 @@ class JREAuditor:
         self.os = sys.platform
         self.get_deployment_path()
         self.get_properties_path()
-        self.logger = JRELogger()
         
 
-    def audit_jre(self):
+    def audit(self):
         """
-        Runs the configuartion tests for JRE 7
+        Run checks of the JRE for compliance and report all misconfiguartions using
+        the JRELogger.
         """
-        self.has_deployment_file()
-        self.has_properties_file()
+        logger = JRELogger()
 
+        success = self.has_deployment_file()
+        logger.has_deployment_file_errmsg(success)
+        success = self.has_properties_file()
+        logger.has_properties_file_errmsg(success)
         success = self.permission_dialog_disabled()
-        self.logger.has_deployment_file_errmsg(success)
         success = self.permission_dialog_locked()
-        self.logger.permission_dialog_locked_errmsg(success)
+        logger.permission_dialog_locked_errmsg(success)
         success = self.publisher_revocation_enabled()
-        self.logger.publisher_revocation_enabled_errmsg(success)
+        logger.publisher_revocation_enabled_errmsg(success)
         success = self.publisher_revocation_locked()
-        self.logger.publisher_revocation_locked_errmsg(success)
+        logger.publisher_revocation_locked_errmsg(success)
         success = self.certificate_validation_enabled()
-        self.logger.certificate_validation_enabled_errmsg(success)
+        logger.certificate_validation_enabled_errmsg(success)
         success = self.certificate_validation_locked()
-        self.logger.certificate_validation_locked_errmsg(success)
+        logger.certificate_validation_locked_errmsg(success)
         success = self.config_keys_set()
-        self.logger.config_keys_set_errmsg(success)
+        logger.config_keys_set_errmsg(success)
         success = self.check_jre_version()
-        self.logger.check_jre_version_errmsg(success)
+        logger.check_jre_version_errmsg(success)
         success = self.check_no_outdated()
-        self.logger.check_no_outdated_errmsg(success)
-        del self.logger
+        logger.check_no_outdated_errmsg(success)
+        
+        self.clean()
+        del logger
     
+
     def __del__(self):
-        call(["rm", HOLDER_FILE])
+        self.clean()
+
+    def clean(self):
+        call(["rm", JRE_HOLDER_FILE])
         if self.deployment_file != None:
             self.deployment_file.close()
         if self.properties_file != None: 
-            self.properties_file.close()
+            self.properties_file.close()     
 
     def get_deployment_path(self):
         """ Searches the system for config file with the default deployment 
         filename.
         """
-        if(self.os == "linux"):
-            holder = open(HOLDER_FILE, 'w')
+        if("linux" in self.os):
+            holder = open(JRE_HOLDER_FILE, 'w')
             call(["find", "/usr", "-name", DEPLOYMENT_FILENAME], stdout=holder)
             holder.close()
-            holder = open(HOLDER_FILE, 'r')
+            holder = open(JRE_HOLDER_FILE, 'r')
         else:
             print("Windows system1")
 
-        if(os.path.getsize(HOLDER_DIR) == 0):
+        if(os.path.getsize(JRE_HOLDER_DIR) == 0):
             self.deployment_path = None
             return 0
 
@@ -92,18 +100,18 @@ class JREAuditor:
     def get_properties_path(self):
         """ Searches the system for the JRE properties file.
         """
-        if(self.os == "linux"):
-            holder = open(HOLDER_FILE, 'w')
+        if("linux" in self.os):
+            holder = open(JRE_HOLDER_FILE, 'w')
             call(["find", "/usr", "-name", PROPERTIES_FILENAME], stdout=holder)
             holder.close()
-            holder = open(HOLDER_FILE, 'r')
         else:
             print("Windows system2")
 
-        if(os.path.getsize(HOLDER_DIR) == 0):
+        if(os.path.getsize(JRE_HOLDER_DIR) == 0):
             self.deployment_path = None
             return 0
-
+        
+        holder = open(JRE_HOLDER_FILE, 'r')
         for file in holder:
             if(line != ''):
                 self.deployment_path = line
@@ -275,7 +283,7 @@ class JREAuditor:
         
         Currently don't have a way to reliable check!!!!!!
         """ 
-        holder = open(HOLDER_FILE, 'w')
+        holder = open(JRE_HOLDER_FILE, 'w')
         call(["java", "-version"], stdout=holder)
         holder.close()
 

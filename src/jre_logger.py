@@ -12,6 +12,7 @@ class JRELogger:
         self.log.write("JRE Audit Findings\n\n")
     
     def __del__(self):
+        print("Write out")
         self.log.write("#########################\n\n")
         self.log.close()
 
