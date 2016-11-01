@@ -24,15 +24,16 @@ class JREAuditor:
         self.deployment_path = None
         self.properties_path = None
         self.os = sys.platform
-        self.get_deployment_path()
-        self.get_properties_path()
-        
 
     def audit(self):
         """
         Run checks of the JRE for compliance and report all misconfiguartions using
         the JRELogger.
         """
+
+        self.get_deployment_path()
+        self.get_properties_path()
+
         logger = JRELogger()
 
         success = self.has_deployment_file()
@@ -56,71 +57,64 @@ class JREAuditor:
         logger.check_jre_version_errmsg(success)
         success = self.check_no_outdated()
         logger.check_no_outdated_errmsg(success)
-        
-        self.clean()
         del logger
+
+        self.clean()
     
 
     def __del__(self):
         self.clean()
 
     def clean(self):
+        pass
         call(["rm", JRE_HOLDER_FILE])
         if self.deployment_file != None:
             self.deployment_file.close()
         if self.properties_file != None: 
             self.properties_file.close()     
 
-    def get_deployment_path(self):
+    def get_deployment_path(self, direc="/usr", filename=DEPLOYMENT_FILENAME):
         """ Searches the system for config file with the default deployment 
         filename.
         """
+        self.deployment_path = None
         if("linux" in self.os):
             holder = open(JRE_HOLDER_FILE, 'w')
-            call(["find", "/usr", "-name", DEPLOYMENT_FILENAME], stdout=holder)
+            call(["find", direc, "-name", filename], stdout=holder)
             holder.close()
-            holder = open(JRE_HOLDER_FILE, 'r')
-        else:
-            print("Windows system1")
 
-        if(os.path.getsize(JRE_HOLDER_DIR) == 0):
-            self.deployment_path = None
+        else: # Windows or Mac
             return 0
 
-        for file in holder:
-            if(line != ''):
+        holder = open(JRE_HOLDER_FILE, 'r')
+        for line in holder:
+            if(line != '' and line != '\n'):
                 self.deployment_path = line
                 holder.close()
                 return 1
-            else:
-                self.deployment_path = None
-                holder.close()
-                return 0
+        holder.close()
+        return 0
 
-    def get_properties_path(self):
+    def get_properties_path(self, direc="/usr", filename=PROPERTIES_FILENAME):
         """ Searches the system for the JRE properties file.
         """
+        self.properties_path = None
         if("linux" in self.os):
             holder = open(JRE_HOLDER_FILE, 'w')
-            call(["find", "/usr", "-name", PROPERTIES_FILENAME], stdout=holder)
+            call(["find", direc, "-name", filename], stdout=holder)
             holder.close()
-        else:
-            print("Windows system2")
 
-        if(os.path.getsize(JRE_HOLDER_DIR) == 0):
-            self.deployment_path = None
+        else: # Windows or Mac
             return 0
-        
+
         holder = open(JRE_HOLDER_FILE, 'r')
-        for file in holder:
-            if(line != ''):
-                self.deployment_path = line
+        for line in holder:
+            if(line != '' and line != '\n'):
+                self.properties_path = line
                 holder.close()
                 return 1
-            else:
-                self.deployment_path = None
-                holder.close()
-                return 0
+        holder.close()
+        return 0
 
     def has_deployment_file(self):
         """Check SV-43621r1_rule: A configuration file must be 
@@ -281,7 +275,8 @@ class JREAuditor:
 
         Finding ID: V-61037
         
-        Currently don't have a way to reliable check!!!!!!
+        Don't have a reliable way to check. Currently not supported!
+
         """ 
         holder = open(JRE_HOLDER_FILE, 'w')
         call(["java", "-version"], stdout=holder)
@@ -292,7 +287,10 @@ class JREAuditor:
         that are no longer supported by the vendor for security 
         updates must not be installed on a system.
         
-        Finding ID: V-61037   
+        Finding ID: V-61037
+
+        Don't have a reliable way to check. Currently not supported!
+        
         """       
         pass
 
@@ -300,5 +298,5 @@ class JREAuditor:
 
 if __name__ == "__main__":
     auditor = JREAuditor()
-    auditor.audit_jre()
+    auditor.audit()
     del auditor
