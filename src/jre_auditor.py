@@ -8,11 +8,11 @@ from jre_logger import JRELogger
 DEPLOYMENT_FILENAME = "deployment.config"
 PROPERTIES_FILENAME = "deployment.properties"
 JRE_HOLDER_FILE = "jre_hold.txt"
-JRE_HOLDER_DIR = "./jre_hold.txt"
 
 
 class JREAuditor:
-    """ Finds the configuration files for the java runtime environment 
+    """ 
+    Finds the configuration files for the java runtime environment 
     and checks to see if they are configured to be compliant with the
     JRE STIG put out by the DIA.
 
@@ -30,6 +30,8 @@ class JREAuditor:
         """
         Run checks of the JRE for compliance and report all misconfiguartions using
         the JRELogger.
+
+        :returns: bool -- filename of the log file
         """
 
         self.get_deployment_path()
@@ -75,8 +77,16 @@ class JREAuditor:
             self.properties_file.close()     
 
     def get_deployment_path(self, direc="/usr", filename=DEPLOYMENT_FILENAME):
-        """ Searches the system for config file with the default deployment 
+        """
+        Searches the system for config file with the default deployment 
         filename.
+
+        :param direc: The default directory to search for the deployment file
+        :type direc: string
+        :param filename: The name of the default deployment file
+        :type filename: string 
+        :returns: int -- 1 if the file is found, 0 otherwise
+
         """
         self.deployment_path = None
         if("linux" in self.os):
@@ -97,7 +107,14 @@ class JREAuditor:
         return 0
 
     def get_properties_path(self, direc="/usr", filename=PROPERTIES_FILENAME):
-        """ Searches the system for the JRE properties file.
+        """ 
+        Searches the system for the JRE properties file.
+
+        :param direc: The default directory to search for the properties file
+        :type direc: string
+        :param filename: The name of the default properties file
+        :type filename: string
+        :returns: int -- 1 if the file is found, 0 otherwise
         """
         self.properties_path = None
         if("linux" in self.os):
@@ -118,10 +135,13 @@ class JREAuditor:
         return 0
 
     def has_deployment_file(self):
-        """Check SV-43621r1_rule: A configuration file must be 
+        """
+        Check SV-43621r1_rule: A configuration file must be 
         present to deploy properties for JRE.
 
-        Finding ID: V-32901     
+        Finding ID: V-32901
+
+        :returns: int -- 1 if the deployment path was found, 0 otherwise
         """
         if(self.deployment_path == None):
              return False
@@ -133,7 +153,9 @@ class JREAuditor:
         hold all the keys that establish properties within the Java 
         control panel.
 
-        Finding ID: V-32902      
+        Finding ID: V-32902
+
+        :returns: int -- 1 if the properties path was found, 0 otherwise   
         """
         if(self.properties_path == None):
             return False
@@ -141,11 +163,14 @@ class JREAuditor:
             return True
 
     def permission_dialog_disabled(self):
-        """Check SV-43596r1_rule: The dialog to enable users to grant 
+        """
+        Check SV-43596r1_rule: The dialog to enable users to grant 
         permissions to execute signed content from an un-trusted 
         authority must be disabled.
 
         Finding ID: V-32828     
+        
+        :returns: bool -- True if rule is satisfied, False otherwise
         """
         if(self.properties_path == None):
             return False
@@ -160,11 +185,14 @@ class JREAuditor:
         return locked
 
     def permission_dialog_locked(self):
-        """Check SV-43601r1_rule: The dialog to enable users to grant 
+        """
+        Check SV-43601r1_rule: The dialog to enable users to grant 
         permissions to execute signed content from an un-trusted 
         authority must be disabled.
 
         Finding ID: V-32829
+        
+        :returns: bool -- True if rule is satisfied, False otherwise
         """
         if(self.properties_path == None):
             return False
@@ -179,10 +207,13 @@ class JREAuditor:
         return locked
 
     def publisher_revocation_enabled(self):
-        """Check SV-43604r1_rule: The dialog to enable users to 
+        """
+        Check SV-43604r1_rule: The dialog to enable users to 
         check publisher certificates for revocation must be enabled.
 
-        Finding ID: V-32830     
+        Finding ID: V-32830
+
+        :returns: bool -- True if rule is satisfied, False otherwise
         """
 
         if(self.properties_path == None):
@@ -198,10 +229,13 @@ class JREAuditor:
         return locked
 
     def publisher_revocation_locked(self):
-        """Check SV-43617r1_rule: The option to enable users to check 
+        """
+        Check SV-43617r1_rule: The option to enable users to check 
         publisher certificates for revocation must be locked.
         
-        Finding ID: V-32831     
+        Finding ID: V-32831
+
+        :returns: bool -- True if rule is satisfied, False otherwise
         """
         if(self.properties_path == None):
             return False
@@ -216,10 +250,13 @@ class JREAuditor:
         return locked
         
     def certificate_validation_enabled(self):
-        """Check SV-43618r1_rule: The option to enable online 
+        """
+        Check SV-43618r1_rule: The option to enable online 
         certificate validation must be enabled.
         
-        Finding ID: V-32832   
+        Finding ID: V-32832
+
+        :returns: bool -- True if rule is satisfied, False otherwise
         """
 
         if(self.properties_path == None):
@@ -234,10 +271,13 @@ class JREAuditor:
         return locked
         
     def certificate_validation_locked(self):
-        """Check SV-43619r1_rule: The option to enable online 
+        """
+        Check SV-43619r1_rule: The option to enable online 
         certificate validation must be locked.
 
-        Finding ID: V-32833      
+        Finding ID: V-32833
+
+        :returns: bool -- True if rule is satisfied, False otherwise  
         """
         if(self.properties_path == None):
             return False
@@ -251,10 +291,13 @@ class JREAuditor:
         return locked
 
     def config_keys_set(self):
-        """Check SV-43649r1_rule: The configuration file must contain
+        """
+        Check SV-43649r1_rule: The configuration file must contain
         proper keys and values to deploy settings correctly.
         
-        Finding ID: V-32842    
+        Finding ID: V-32842
+
+        :returns: bool -- True if rule is satisfied, False otherwise  
         """
         if(self.properties_path == None):
             return False
@@ -276,8 +319,9 @@ class JREAuditor:
 
         Finding ID: V-61037
         
-        Don't have a reliable way to check. Currently not supported!
+        :returns: bool -- True if rule is satisfied, False otherwise
 
+        Don't have a reliable way to check. Currently not supported!
         """ 
         holder = open(JRE_HOLDER_FILE, 'w')
         call(["java", "-version"], stdout=holder)
@@ -290,8 +334,9 @@ class JREAuditor:
         
         Finding ID: V-61037
 
+        :returns: bool -- True if rule is satisfied, False otherwise
+
         Don't have a reliable way to check. Currently not supported!
-        
         """       
         pass
 

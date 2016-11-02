@@ -1,11 +1,13 @@
 
+DEFAULT_CONFIG = "JRELog.txt"
+
 
 class JRELogger:
     """JRELogger writes error messages to the JRE log file
     for every rule in the JRE STIG that is violated.
     """
 
-    def __init__(self, filename="JRELog.txt"):
+    def __init__(self, filename=DEFAULT_CONFIG):
         self.filename = filename
         self.log = open(filename, 'w')
         self.log.write("#########################\n\n")
