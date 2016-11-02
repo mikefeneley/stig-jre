@@ -1,14 +1,17 @@
-
+#!/usr/bin/env python
+# -*-coding: utf-8 -*-
 
 import sys
 import os
 from subprocess import call
 from jre_logger import JRELogger
 
+DIR = "/usr/java"
 DEPLOYMENT_FILENAME = "deployment.config"
 PROPERTIES_FILENAME = "deployment.properties"
 JRE_HOLDER_FILE = "jre_hold.txt"
 
+LATEST_JAVA = "1.7.0_95" # Not actually the latest
 
 class JREAuditor:
     """ 
@@ -38,7 +41,6 @@ class JREAuditor:
         self.get_properties_path()
 
         logger = JRELogger()
-
         success = self.has_deployment_file()
         logger.has_deployment_file_errmsg(success)
         success = self.has_properties_file()
@@ -61,22 +63,26 @@ class JREAuditor:
         success = self.check_no_outdated()
         logger.check_no_outdated_errmsg(success)
         del logger
-
-        self.clean()
     
 
     def __del__(self):
+        """
+        Clean up any data used by JREAuditor
+        """
         self.clean()
 
     def clean(self):
-        pass
+        """
+        Remove any files used for temporary storage and close any open
+        file descriptors.
+        """
         call(["rm", JRE_HOLDER_FILE])
         if self.deployment_file != None:
             self.deployment_file.close()
         if self.properties_file != None: 
             self.properties_file.close()     
 
-    def get_deployment_path(self, direc="/usr", filename=DEPLOYMENT_FILENAME):
+    def get_deployment_path(self, direc=DIR, filename=DEPLOYMENT_FILENAME):
         """
         Searches the system for config file with the default deployment 
         filename.
@@ -93,20 +99,19 @@ class JREAuditor:
             holder = open(JRE_HOLDER_FILE, 'w')
             call(["find", direc, "-name", filename], stdout=holder)
             holder.close()
-
         else: # Windows or Mac
             return 0
 
         holder = open(JRE_HOLDER_FILE, 'r')
         for line in holder:
             if(line != '' and line != '\n'):
-                self.deployment_path = line
+                self.deployment_path = line.strip('\n')
                 holder.close()
                 return 1
         holder.close()
         return 0
 
-    def get_properties_path(self, direc="/usr", filename=PROPERTIES_FILENAME):
+    def get_properties_path(self, direc=DIR, filename=PROPERTIES_FILENAME):
         """ 
         Searches the system for the JRE properties file.
 
@@ -128,7 +133,7 @@ class JREAuditor:
         holder = open(JRE_HOLDER_FILE, 'r')
         for line in holder:
             if(line != '' and line != '\n'):
-                self.properties_path = line
+                self.properties_path = line.strip("\n")
                 holder.close()
                 return 1
         holder.close()
@@ -172,17 +177,18 @@ class JREAuditor:
         
         :returns: bool -- True if rule is satisfied, False otherwise
         """
+
         if(self.properties_path == None):
             return False
 
         config = open(self.properties_path, 'r')
 
-        locked = False
-        for line in config_file:
+        disabled = False
+        for line in config:
             if 'deployment.security.askgrantdialog.notinca=false' in line:
-                locked = True
+                disabled = True
         config.close()
-        return locked
+        return disabled
 
     def permission_dialog_locked(self):
         """
@@ -199,9 +205,9 @@ class JREAuditor:
 
         config = open(self.properties_path, 'r')
 
-        disabled = False
-        for line in config_file:
-            if line == 'deployment.security.askgrantdialog.notinca':
+        locked = False
+        for line in config:
+            if 'deployment.security.askgrantdialog.notinca.locked' in line:
                 locked = True
         config.close()
         return locked
@@ -221,12 +227,12 @@ class JREAuditor:
 
         config = open(self.properties_path, 'r')
 
-        disabled = False
-        for line in config_file:
-            if 'deployment.security.validation.crl=false' in line:
-                locked = True
+        enabled = False
+        for line in config:
+            if 'deployment.security.validation.crl=true' in line:
+                enabled = True
         config.close()
-        return locked
+        return enabled
 
     def publisher_revocation_locked(self):
         """
@@ -242,8 +248,8 @@ class JREAuditor:
 
         config = open(self.properties_path, 'r')
 
-        disabled = False
-        for line in config_file:
+        locked = False
+        for line in config:
             if 'deployment.security.validation.crl.locked' in line:
                 locked = True
         config.close()
@@ -263,12 +269,12 @@ class JREAuditor:
             return False
 
         config = open(self.properties_path, 'r')
-        disabled = False
-        for line in config_file:
-            if 'deployment.security.validation.ocsp=false' in line:
-                locked = True
+        enabled = False
+        for line in config:
+            if 'deployment.security.validation.ocsp=true' in line:
+                enabled = True
         config.close()
-        return locked
+        return enabled
         
     def certificate_validation_locked(self):
         """
@@ -284,8 +290,8 @@ class JREAuditor:
 
         config = open(self.properties_path, 'r')
         locked = False
-        for line in config_file:
-            if line == 'deployment.security.validation.ocsp.locked':
+        for line in config:
+            if 'deployment.security.validation.ocsp.locked' in line:
                 locked = True
         config.close()
         return locked
@@ -297,23 +303,28 @@ class JREAuditor:
         
         Finding ID: V-32842
 
-        :returns: bool -- True if rule is satisfied, False otherwise  
+        :returns: bool -- True if rule is satisfied, False otherwise
+
+        The way the requirement is stated is ambigous. Look in to that.
         """
         if(self.properties_path == None):
             return False
 
-        config = open(self.properties_path, 'r')
+        config = open(self.deployment_path, 'r')
         properties_set = False
         deployment_set = False
-        for line in config_file:
-            if 'deployment.system.config=' in line: #This should end with properties filename
+        for line in config:
+            print(line)
+            if 'deployment.system.config=file:' in line: #This should end with properties filename
                 properties_set = True
             if 'deployment.system.config.mandatory=false' in line:
                 deployment_set = True
         config.close()
+        print(properties_set, deployment_set, "HERE")
+
         return properties_set and deployment_set
 
-    def check_jre_version(self):
+    def check_jre_version(self, latest_version=LATEST_JAVA):
         """Check SV-51133r1_rule: The version of the JRE running on 
         the system must be the most current available.
 
@@ -324,8 +335,19 @@ class JREAuditor:
         Don't have a reliable way to check. Currently not supported!
         """ 
         holder = open(JRE_HOLDER_FILE, 'w')
-        call(["java", "-version"], stdout=holder)
+        call(["java", "-version"], stderr=holder)
         holder.close()
+
+        holder = open(JRE_HOLDER_FILE, 'r')
+
+        latest = False
+        for line in holder:
+            if "java version" in line:
+                if LATEST_JAVA in line:
+                    latest = True
+        holder.close()
+        return latest
+
 
     def check_no_outdated(self):
         """Check SV-75505r2_rule: Java Runtime Environment versions 

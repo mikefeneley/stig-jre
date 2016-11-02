@@ -1,6 +1,7 @@
+#!/usr/bin/env python
+# -*-coding: utf-8 -*-
 
 DEFAULT_CONFIG = "JRELog.txt"
-
 
 class JRELogger:
     """JRELogger writes error messages to the JRE log file
