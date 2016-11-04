@@ -22,6 +22,7 @@ class JREAuditor:
     Only supports configuartion of JRE 7 STIG on a nix system. Does not check if
     latest version.
     """
+
     def __init__(self):
         self.deployment_file = None
         self.properties_file = None
@@ -36,30 +37,29 @@ class JREAuditor:
 
         :returns: string -- filename of the log file
         """
-
         self.get_deployment_path()
         self.get_properties_path()
 
         logger = JRELogger()
-#        success = self.has_deployment_file()
-#        logger.has_deployment_file_errmsg(success)
-#        success = self.has_properties_file()
-#        logger.has_properties_file_errmsg(success)
-#        success = self.permission_dialog_disabled()
-#        success = self.permission_dialog_locked()
-#        logger.permission_dialog_locked_errmsg(success)
-#        success = self.publisher_revocation_enabled()
-#        logger.publisher_revocation_enabled_errmsg(success)
-#        success = self.publisher_revocation_locked()
-#        logger.publisher_revocation_locked_errmsg(success)
-#        success = self.certificate_validation_enabled()
-#        logger.certificate_validation_enabled_errmsg(success)
-#        success = self.certificate_validation_locked()
-#        logger.certificate_validation_locked_errmsg(success)
-#        success = self.config_keys_set()
-#        logger.config_keys_set_errmsg(success)
-#        success = self.check_jre_version()
-#        logger.check_jre_version_errmsg(success)
+        success = self.has_deployment_file()
+        logger.has_deployment_file_errmsg(success)
+        success = self.has_properties_file()
+        logger.has_properties_file_errmsg(success)
+        success = self.permission_dialog_disabled()
+        success = self.permission_dialog_locked()
+        logger.permission_dialog_locked_errmsg(success)
+        success = self.publisher_revocation_enabled()
+        logger.publisher_revocation_enabled_errmsg(success)
+        success = self.publisher_revocation_locked()
+        logger.publisher_revocation_locked_errmsg(success)
+        success = self.certificate_validation_enabled()
+        logger.certificate_validation_enabled_errmsg(success)
+        success = self.certificate_validation_locked()
+        logger.certificate_validation_locked_errmsg(success)
+        success = self.config_keys_set()
+        logger.config_keys_set_errmsg(success)
+        success = self.check_jre_version()
+        logger.check_jre_version_errmsg(success)
         success = self.check_no_outdated()
         logger.check_no_outdated_errmsg(success)
         del logger
@@ -76,7 +76,7 @@ class JREAuditor:
         Remove any files used for temporary storage and close any open
         file descriptors.
         """
-#        call(["rm", JRE_HOLDER_FILE])
+        call(["rm", JRE_HOLDER_FILE])
         if self.deployment_file != None:
             self.deployment_file.close()
         if self.properties_file != None: 
@@ -92,7 +92,6 @@ class JREAuditor:
         :param filename: The name of the default deployment file
         :type filename: string 
         :returns: int -- 1 if the file is found, 0 otherwise
-
         """
         self.deployment_path = None
         if("linux" in self.os):
