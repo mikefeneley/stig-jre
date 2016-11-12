@@ -327,7 +327,7 @@ class JREAuditor:
         """Check SV-51133r1_rule: The version of the JRE running on 
         the system must be the most current available.
 
-        Finding ID: V-61037
+        Finding ID: V-39239
         
         :returns: bool -- True if rule is satisfied, False otherwise
         """ 
