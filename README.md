@@ -1,5 +1,7 @@
 # stig-jre
 
+<b>Introduction</b>
+
 This tool checks to make sure that the java runtime environment (JRE) installed on your operating system
 adheres to the requirements of the DIA STIG.
 
@@ -35,3 +37,8 @@ SV-51133r1_rule, V-39239
 
 SV-75505r2_rule, V-61037
 
+Using the Program
+
+The program can be run using the command line. Navigate to the src folder after downloading and execute program with the following command:
+
+python jre_auditor.py
