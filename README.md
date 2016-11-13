@@ -54,4 +54,4 @@ SV-75505r2_rule, V-61037
 
 The program can be run using the command line. Navigate to the src folder after downloading and execute program with the following command:
 
-python jre_auditor.py
+<i>python jre_auditor.py</i>
