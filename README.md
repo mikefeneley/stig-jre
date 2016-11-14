@@ -13,6 +13,7 @@ If you are interested in working on this project with me, I may be interested if
 
 
 <b>#################################################################</b>
+
 <b>Introduction</b>
 
 This tool checks to make sure that the java runtime environment (JRE) installed on your operating system
