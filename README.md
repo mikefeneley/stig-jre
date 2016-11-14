@@ -1,6 +1,4 @@
 # stig-jre
-# stig_windows10
-
 <b>Update 11/13/2016:</b>
 
 STIG-JRE was originally intended to be a vulnerability checker that checked windows configuration against the recommendations of the STIG guides provided by the DISA. STIG-JRE uses Python implementations of each individual STIG guide to check against the STIG requirements.
